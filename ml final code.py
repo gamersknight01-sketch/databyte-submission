@@ -1,6 +1,4 @@
-# =========================================================
-# IMPORTS
-# =========================================================
+
 import pandas as pd
 import numpy as np
 import re
@@ -11,9 +9,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score, classification_report
 
-# =========================================================
-# LOAD DATA
-# =========================================================
 DATA_PATH = r"C:\Users\megha\PycharmProjects\databyte\train.csv"
 
 df = pd.read_csv(DATA_PATH)
@@ -24,9 +19,6 @@ LABEL_COL = "target"
 X_text = df[TEXT_COL]
 y = df[LABEL_COL]
 
-# =========================================================
-# TRAIN / VALIDATION SPLIT
-# =========================================================
 X_train_text, X_val_text, y_train, y_val = train_test_split(
     X_text,
     y,
@@ -35,9 +27,6 @@ X_train_text, X_val_text, y_train, y_val = train_test_split(
     random_state=42
 )
 
-# =========================================================
-# PIPELINE (TF-IDF + LOGISTIC REGRESSION)
-# =========================================================
 pipeline = Pipeline([
     ("tfidf", TfidfVectorizer(stop_words="english")),
     ("clf", LogisticRegression(
@@ -46,9 +35,6 @@ pipeline = Pipeline([
     ))
 ])
 
-# =========================================================
-# HYPERPARAMETER GRID (F1-ORIENTED)
-# =========================================================
 param_grid = {
     # TF-IDF parameters
     "tfidf__ngram_range": [(1,1), (1,2)],
@@ -64,10 +50,6 @@ param_grid = {
         {0: 1, 1: 1.6}
     ]
 }
-
-# =========================================================
-# GRID SEARCH (OPTIMIZE F1)
-# =========================================================
 grid = GridSearchCV(
     pipeline,
     param_grid,
@@ -79,9 +61,6 @@ grid = GridSearchCV(
 
 grid.fit(X_train_text, y_train)
 
-# =========================================================
-# BEST MODEL
-# =========================================================
 best_model = grid.best_estimator_
 
 print("\nBest CV F1:", grid.best_score_)
@@ -89,16 +68,10 @@ print("\nBest Parameters:")
 for k, v in grid.best_params_.items():
     print(f"{k}: {v}")
 
-# =========================================================
-# VALIDATION EVALUATION (DEFAULT THRESHOLD = 0.5)
-# =========================================================
 y_val_pred = best_model.predict(X_val_text)
 print("\nClassification Report (threshold=0.5):\n")
 print(classification_report(y_val, y_val_pred))
 
-# =========================================================
-# 🔥 THRESHOLD TUNING (MAXIMIZE F1)
-# =========================================================
 probs = best_model.predict_proba(X_val_text)[:, 1]
 
 thresholds = np.arange(0.2, 0.8, 0.01)
@@ -114,9 +87,6 @@ best_f1 = max(f1_scores)
 print("\nBest Threshold:", round(best_threshold, 2))
 print("Best F1 After Threshold Tuning:", round(best_f1, 4))
 
-# =========================================================
-# FINAL REPORT WITH BEST THRESHOLD
-# =========================================================
 final_preds = (probs >= best_threshold).astype(int)
 
 print("\nFinal Classification Report (Optimized Threshold):\n")
