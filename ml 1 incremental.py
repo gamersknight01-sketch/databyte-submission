@@ -1,6 +1,4 @@
-# =========================================================
-# IMPORTS
-# =========================================================
+
 import pandas as pd
 import re
 import string
@@ -15,9 +13,6 @@ import nltk
 
 nltk.download("stopwords")
 
-# =========================================================
-# LOAD DATA
-# =========================================================
 DATA_PATH = r"C:\Users\megha\PycharmProjects\databyte\train.csv"
 
 df = pd.read_csv(DATA_PATH)
@@ -25,9 +20,6 @@ df = pd.read_csv(DATA_PATH)
 TEXT_COL = "text"
 LABEL_COL = "target"
 
-# =========================================================
-# TEXT PREPROCESSING PIPELINE
-# =========================================================
 STOPWORDS = set(stopwords.words("english"))
 
 def preprocess_text(text):
@@ -40,9 +32,6 @@ def preprocess_text(text):
 
 df["clean_text"] = df[TEXT_COL].apply(preprocess_text)
 
-# =========================================================
-# TRAIN / VALIDATION SPLIT
-# =========================================================
 X_train, X_val, y_train, y_val = train_test_split(
     df["clean_text"],
     df[LABEL_COL],
@@ -51,9 +40,7 @@ X_train, X_val, y_train, y_val = train_test_split(
     random_state=42
 )
 
-# =========================================================
-# TF-IDF VECTORIZATION (CLASSIC)
-# =========================================================
+
 tfidf = TfidfVectorizer(
     ngram_range=(1, 1),        # unigrams only (classic)
     min_df=2,
@@ -64,9 +51,6 @@ tfidf = TfidfVectorizer(
 X_train_tfidf = tfidf.fit_transform(X_train)
 X_val_tfidf   = tfidf.transform(X_val)
 
-# =========================================================
-# CLASSIC BASELINE MODEL
-# =========================================================
 model = LogisticRegression(
     max_iter=2000,
     solver="liblinear"
@@ -74,9 +58,6 @@ model = LogisticRegression(
 
 model.fit(X_train_tfidf, y_train)
 
-# =========================================================
-# EVALUATION
-# =========================================================
 y_val_pred = model.predict(X_val_tfidf)
 
 f1 = f1_score(y_val, y_val_pred)
