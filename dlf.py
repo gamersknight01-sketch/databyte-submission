@@ -1,6 +1,4 @@
-# =========================================================
-# IMPORTS
-# =========================================================
+
 import pandas as pd
 import torch
 import torch.nn as nn
@@ -18,9 +16,6 @@ from transformers import (
     get_linear_schedule_with_warmup
 )
 
-# =========================================================
-# CONFIG
-# =========================================================
 DATA_PATH = r"C:\Users\megha\PycharmProjects\databyte\train.csv"
 
 TEXT_COL = "text"
@@ -35,9 +30,6 @@ LR = 2e-5
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("Using device:", DEVICE)
 
-# =========================================================
-# LOAD DATA
-# =========================================================
 df = pd.read_csv(DATA_PATH)
 
 train_texts, val_texts, train_labels, val_labels = train_test_split(
@@ -48,14 +40,9 @@ train_texts, val_texts, train_labels, val_labels = train_test_split(
     random_state=42
 )
 
-# =========================================================
-# TOKENIZER
-# =========================================================
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
-# =========================================================
-# DATASET
-# =========================================================
+
 class NewsDataset(Dataset):
     def __init__(self, texts, labels):
         self.enc = tokenizer(
@@ -77,17 +64,11 @@ class NewsDataset(Dataset):
 train_ds = NewsDataset(train_texts, train_labels)
 val_ds   = NewsDataset(val_texts, val_labels)
 
-# =========================================================
-# MODEL (DEFAULT HEAD)
-# =========================================================
 model = AutoModelForSequenceClassification.from_pretrained(
     MODEL_NAME,
     num_labels=2
 ).to(DEVICE)
 
-# =========================================================
-# OPTIMIZER & SCHEDULER
-# =========================================================
 optimizer = AdamW(model.parameters(), lr=LR, weight_decay=0.01)
 
 train_loader = DataLoader(
@@ -105,9 +86,6 @@ scheduler = get_linear_schedule_with_warmup(
 
 scaler = GradScaler()
 
-# =========================================================
-# TRAIN
-# =========================================================
 for epoch in range(EPOCHS):
     model.train()
     total_loss = 0
@@ -130,9 +108,7 @@ for epoch in range(EPOCHS):
     avg_loss = total_loss / len(train_loader)
     print(f"Epoch {epoch+1}/{EPOCHS} | Train Loss: {avg_loss:.4f}")
 
-# =========================================================
-# EVALUATION
-# =========================================================
+
 model.eval()
 preds, labels = [], []
 
