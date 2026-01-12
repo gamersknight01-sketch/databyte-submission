@@ -1,6 +1,4 @@
-# =========================================================
-# IMPORTS
-# =========================================================
+
 import pandas as pd
 import numpy as np
 import torch
@@ -21,9 +19,7 @@ from transformers import (
 )
 from transformers.modeling_outputs import SequenceClassifierOutput
 
-# =========================================================
-# CONFIG
-# =========================================================
+
 DATA_PATH = r"C:\Users\megha\PycharmProjects\databyte\train.csv"
 TEXT_COL = "text"
 LABEL_COL = "target"
@@ -37,9 +33,7 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 print("Using device:", DEVICE)
 
-# =========================================================
-# LOAD DATA
-# =========================================================
+
 df = pd.read_csv(DATA_PATH)
 
 train_texts, val_texts, train_labels, val_labels = train_test_split(
@@ -50,9 +44,6 @@ train_texts, val_texts, train_labels, val_labels = train_test_split(
     random_state=42
 )
 
-# =========================================================
-# DATASET
-# =========================================================
 class NewsDataset(Dataset):
     def __init__(self, texts, labels, tokenizer):
         self.enc = tokenizer(
@@ -71,9 +62,7 @@ class NewsDataset(Dataset):
     def __len__(self):
         return len(self.labels)
 
-# =========================================================
-# CUSTOM FFN MODEL (UNIFIED OUTPUT)
-# =========================================================
+
 class TransformerWithFFN(nn.Module):
     def __init__(self, model_name):
         super().__init__()
@@ -116,9 +105,6 @@ class TransformerWithFFN(nn.Module):
         )
 
 
-# =========================================================
-# TRAIN & EVAL FUNCTION (GPU + FP16)
-# =========================================================
 def train_and_eval(model, train_ds, val_ds, freeze_encoder=False):
 
     if freeze_encoder and hasattr(model, "encoder"):
@@ -144,7 +130,6 @@ def train_and_eval(model, train_ds, val_ds, freeze_encoder=False):
 
     scaler = GradScaler()
 
-    # ---------------- TRAIN ----------------
     for epoch in range(EPOCHS):
         model.train()
         total_loss = 0
@@ -167,7 +152,6 @@ def train_and_eval(model, train_ds, val_ds, freeze_encoder=False):
         avg_loss = total_loss / len(train_loader)
         print(f"Epoch {epoch+1}/{EPOCHS} | Train Loss: {avg_loss:.4f}")
 
-    # ---------------- EVAL ----------------
     model.eval()
     preds, labels = [], []
 
@@ -190,9 +174,7 @@ def train_and_eval(model, train_ds, val_ds, freeze_encoder=False):
 
     return f1_score(labels, preds)
 
-# =========================================================
-# EXPERIMENTS
-# =========================================================
+
 experiments = [
     ("bert-base-uncased", "default", False),
     ("bert-base-uncased", "ffn", False),
@@ -225,11 +207,8 @@ for model_name, head, freeze in experiments:
 
     print(f"F1: {f1:.4f}")
 
-# =========================================================
-# BEST MODEL
-# =========================================================
 best_model = max(results, key=results.get)
 
-print("\n================ BEST CONFIGURATION ================")
+print("\nBEST CONFIGURATION ")
 print("Model:", best_model)
 print("Best F1:", round(results[best_model], 4))
