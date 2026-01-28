@@ -21,7 +21,7 @@ DATA_PATH = r"C:\Users\megha\PycharmProjects\databyte\train.csv"
 TEXT_COL = "text"
 LABEL_COL = "target"
 
-MODEL_NAME = "roberta-base"     # 🔒 LOCKED BEST MODEL
+MODEL_NAME = "roberta-base"   .
 MAX_LEN = 128
 BATCH_SIZE = 16
 EPOCHS = 3
