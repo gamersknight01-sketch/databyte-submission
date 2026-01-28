@@ -39,7 +39,6 @@ param_grid = {
     # TF-IDF parameters
     "tfidf__ngram_range": [(1,1), (1,2)],
     "tfidf__min_df": [2, 5],
-    "tfidf__max_df": [0.8, 0.9],
     "tfidf__sublinear_tf": [True],
 
     # Logistic Regression parameters
